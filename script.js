@@ -6,31 +6,33 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
 }).addTo(map);
 
-// Heatmap data: array of [latitude, longitude, intensity] values
-var heatmapData = [
-    [28.7041, 77.1025, 0.5],  // New Delhi
-    [19.0760, 72.8777, 0.8],  // Mumbai (heatmap point)
-    [13.0827, 80.2707, 0.7],  // Chennai
-    [22.5726, 88.3639, 0.6],  // Kolkata
-    [12.9716, 77.5946, 0.4],  // Bangalore
-    [26.9124, 75.7873, 0.9],  // Jaipur
-    [21.1458, 79.0882, 0.7],  // Nagpur
-    [15.3173, 75.7139, 0.6],  // Karnataka region
-    [24.5854, 73.7125, 0.5],  // Udaipur
-    [23.2599, 77.4126, 0.7],  // Bhopal
-    [25.3176, 82.9739, 0.9]   // Varanasi
+// Function to determine color based on AQI value
+function getColor(aqi) {
+    return aqi > 300 ? '#7e0023' : // Very Poor (Dark Red)
+           aqi > 200 ? '#ff0000' : // Poor (Red)
+           aqi > 100 ? '#ff7e00' : // Moderate (Orange)
+           aqi > 50  ? '#ffff00' : // Satisfactory (Yellow)
+                        '#00e400';  // Good (Green)
+}
+
+// AQI data from the document
+var aqiData = [
+    { city: "New Delhi", coords: [28.7041, 77.1025], aqi: 310 },
+    { city: "Mumbai", coords: [19.0760, 72.8777], aqi: 51 },
+    { city: "Kolkata", coords: [22.5726, 88.3639], aqi: 120 },
+    { city: "Chennai", coords: [13.0827, 80.2707], aqi: 44 },
+    { city: "Bangalore", coords: [12.9716, 77.5946], aqi: 50 }
 ];
 
-// Create heatmap layer and add it to the map
-L.heatLayer(heatmapData, {
-    radius: 25,         // Radius of each heatmap point
-    blur: 15,           // Blur intensity
-    maxZoom: 17,        // Max zoom level
-    max: 1              // Maximum point intensity
-}).addTo(map);
+// Loop through AQI data to create markers with different colors
+aqiData.forEach(function(data) {
+    var circle = L.circle(data.coords, {
+        color: getColor(data.aqi),
+        fillColor: getColor(data.aqi),
+        fillOpacity: 0.5,
+        radius: 20000
+    }).addTo(map);
 
-// Add a marker for Mumbai
-var mumbaiMarker = L.marker([19.0760, 72.8777]).addTo(map);
-
-// Bind a popup to the Mumbai marker
-mumbaiMarker.bindPopup("<b>Mumbai: Rainy Area</b>").openPopup();
+    // Bind a popup to each circle marker
+    circle.bindPopup(`<b>${data.city}</b><br>AQI: ${data.aqi}`);
+});
