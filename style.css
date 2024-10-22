@@ -8,14 +8,16 @@
 body {
     font-family: 'Arial', sans-serif;
     line-height: 1.6;
-    background-color: #f4f4f4;
+    background-color: #f4f4f4; /* Light gray background for the body */
+    color: #333; /* Dark text for readability */
 }
 
 /* Header Navigation */
 header {
-    background: #333;
+    background: #4a4a4a; /* Darker background for contrast */
     color: #fff;
-    padding: 10px 0;
+    padding: 15px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
 }
 
 nav {
@@ -28,7 +30,12 @@ nav {
 }
 
 .logo img {
-    width: 50px;
+    width: 30px; /* Slightly larger logo */
+    transition: transform 0.3s; /* Animation on hover */
+}
+
+.logo img:hover {
+    transform: scale(1.1); /* Logo grows on hover */
 }
 
 .nav-links {
@@ -37,54 +44,65 @@ nav {
 }
 
 .nav-links li {
-    margin-left: 20px;
+    margin-left: 30px; /* More space between links */
 }
 
 .nav-links li a {
-    color: white;
+    color: #fff; /* White text for links */
     text-decoration: none;
     font-size: 18px;
-    transition: color 0.3s;
+    padding: 5px 10px; /* Padding for clickable area */
+    border-radius: 5px; /* Rounded corners */
+    transition: background 0.3s, color 0.3s; /* Transition effects */
 }
 
 .nav-links li a:hover {
-    color: #ff6f61;
+    background: #ff6f61; /* Highlight color */
+    color: #fff; /* Keep text color white */
 }
 
 /* Hero Section */
 .hero {
-    background: url('images/hero-bg.jpg') no-repeat center center/cover;
+    background: rgba(0, 0, 0, 0.7) url('images/hero-bg.jpg') no-repeat center center/cover; /* Dark overlay for contrast */
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: rgb(0, 0, 0);
+    color: #fff; /* Light text for contrast */
+    animation: fadeIn 1s; /* Fade-in animation */
 }
 
 .hero h1 {
-    font-size: 50px;
-    margin-bottom: 10px;
+    font-size: 36px; /* Adjusted font size */
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Shadow for depth */
+    line-height: 1.2; /* Adjust line height for better spacing */
+    font-weight: 700; /* Bold weight for emphasis */
 }
 
 .hero p {
-    font-size: 20px;
+    font-size: 22px;
+    margin-bottom: 20px;
 }
 
 .hero .btn {
     margin-top: 20px;
-    padding: 10px 20px;
+    padding: 12px 25px;
     background: #ff6f61;
     color: white;
     border: none;
+    border-radius: 5px; /* Rounded button */
     cursor: pointer;
     font-size: 18px;
-    transition: background 0.3s;
+    text-decoration: none; /* Remove underline if it's an anchor tag */
+    transition: background 0.3s, transform 0.3s; /* Button animation */
 }
 
 .hero .btn:hover {
     background: #ff3f3f;
+    transform: scale(1.05); /* Slightly grow button on hover */
 }
 
 /* Heatmap Section */
@@ -98,24 +116,27 @@ nav {
     margin-bottom: 20px;
 }
 
+/* Heatmap Container */
 #heatmapContainer {
-    height: 600px;    /* Ensure height is set */
-    width: 100%;      /* Full width of the page */
+    height: 600px; /* Ensure height is set */
+    width: 100%; /* Full width of the page */
     margin: 20px 0;
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
 }
 
 /* Footer */
 footer {
-    background: #333;
+    background: #4a4a4a; /* Match header */
     color: white;
-    padding: 10px 0;
+    padding: 15px 0;
     text-align: center;
 }
 
 /* Media Queries for responsiveness */
 @media screen and (max-width: 768px) {
     .hero h1 {
-        font-size: 40px;
+        font-size: 28px; /* Adjusted for smaller screens */
     }
 
     .hero p {
@@ -123,6 +144,13 @@ footer {
     }
 
     .nav-links li {
-        margin-left: 10px;
+        margin-left: 15px; /* Adjust spacing for smaller screens */
+    }
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
     }
 }
