@@ -3,10 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>India Heatmap</title>
+    <title>Heatmap - PM Concentrations</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #map { 
+            height: 100vh; 
+            width: 100%; 
+        }
+
+        .popup-content { 
+            max-width: 220px; 
+            word-wrap: break-word; 
+            font-size: 12px; 
+        }
+
+        canvas { 
+            width: 100%; 
+            height: auto; 
+            max-height: 150px; 
+        }
+
+        .popup { 
+            min-width: 220px; 
+        }
+
+        @media (max-width: 768px) {
+            .popup-content { 
+                font-size: 10px; 
+            }
+
+            .popup {
+                min-width: 180px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -16,25 +54,165 @@
             </div>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="heatmap.html">Heatmap</a></li>
+                <li><a href="heatmap.html" class="btn">Heatmap</a></li>
             </ul>
         </nav>
     </header>
 
-    <section class="heatmap">
-        <h2>Heatmap of India</h2>
-        <!-- Heatmap Container -->
-        <div id="heatmapContainer"></div>
-    </section>
+    <div id="map"></div>
 
     <footer>
-        <p>&copy; 2024 Heatmap Website. All rights reserved.</p>
+        <p>&copy; 2024 Heatmap. All rights reserved.</p>
     </footer>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <!-- Heatmap Plugin for Leaflet -->
-    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-    <script src="script.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const map = L.map('map').setView([20.5937, 78.9629], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+
+            const apiKey = 'e48ec5f8c70c0e7bfdd7bd5d3cafa210';
+            let currentMarker = null;
+
+            const fetchAQIData = async (lat, lon) => {
+                try {
+                    const response = await axios.get('http://api.openweathermap.org/data/2.5/air_pollution', {
+                        params: { lat, lon, appid: apiKey }
+                    });
+                    return response.data;
+                } catch (error) {
+                    console.error("Error fetching AQI data:", error);
+                    return null;
+                }
+            };
+
+            const fetchLocationName = async (lat, lon) => {
+                try {
+                    const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+                        params: { lat, lon, format: 'json' }
+                    });
+                    return response.data.display_name;
+                } catch (error) {
+                    console.error("Error fetching location name:", error);
+                    return null;
+                }
+            };
+
+            function getAQIColor(aqi) {
+                if (aqi === 1) return "#006400"; // Very Good
+                if (aqi === 2) return "#00FF00"; // Good
+                if (aqi === 3) return "#FFFF00"; // Moderate
+                if (aqi === 4) return "#FFB6C1"; // Poor
+                if (aqi === 5) return "#FF0000"; // Very Poor
+                return "#800080"; // Hazardous
+            }
+
+            function getAQIStatus(aqi) {
+                if (aqi === 1) return "Very Good";
+                if (aqi === 2) return "Good";
+                if (aqi === 3) return "Moderate";
+                if (aqi === 4) return "Poor";
+                if (aqi === 5) return "Very Poor";
+                return "Hazardous";
+            }
+
+            function renderPollutantsChart(data, canvasId) {
+                const ctx = document.getElementById(canvasId).getContext("2d");
+
+                // Destroy the previous chart if it exists
+                if (ctx.chart) {
+                    ctx.chart.destroy();
+                }
+
+                ctx.chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['PM2.5', 'PM10', 'CO', 'SO2', 'O3'],
+                        datasets: [{
+                            label: 'Pollutant Levels (μg/m³)',
+                            data: [
+                                data.list[0].components.pm2_5,
+                                data.list[0].components.pm10,
+                                data.list[0].components.co,
+                                data.list[0].components.so2,
+                                data.list[0].components.o3
+                            ],
+                            backgroundColor: ['#ff4e42', '#ffa700', '#66b032', '#065535', '#0072bb']
+                        }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) { return value + ' μg/m³'; }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        },
+                        layout: {
+                            padding: {
+                                bottom: 20
+                            }
+                        }
+                    }
+                });
+            }
+
+            function clearPreviousData() {
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                    currentMarker = null;
+                }
+            }
+
+            function displayAQIData(lat, lon) {
+                clearPreviousData();
+
+                fetchAQIData(lat, lon).then(async (data) => {
+                    if (data) {
+                        const aqi = data.list[0].main.aqi;
+                        const locationName = await fetchLocationName(lat, lon);
+                        const color = getAQIColor(aqi);
+                        const status = getAQIStatus(aqi);
+
+                        // Create a circle marker for the clicked point
+                        currentMarker = L.circleMarker([lat, lon], {
+                            color: color,
+                            fillColor: color,
+                            fillOpacity: 0.6,
+                            radius: 10
+                        }).addTo(map).bindPopup(`
+                            <div class="popup-content">
+                                <h3 style="font-size: 14px;">${locationName}</h3>
+                                <p><strong>AQI Level:</strong> ${aqi}</p>
+                                <p><strong>Status:</strong> ${status}</p>
+                                <canvas id="chart-${locationName.replace(/\s/g, '')}" width="200" height="150"></canvas>
+                            </div>
+                        `, { closeButton: true }).openPopup();
+
+                        // Render pollutants chart immediately after popup opens
+                        renderPollutantsChart(data, `chart-${locationName.replace(/\s/g, '')}`);
+                    }
+                });
+            }
+
+            map.on('click', function (event) {
+                const lat = event.latlng.lat;
+                const lon = event.latlng.lng;
+                displayAQIData(lat, lon);
+            });
+        });
+    </script>
 </body>
 </html>
