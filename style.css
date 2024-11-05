@@ -8,17 +8,29 @@
 body {
     font-family: 'Arial', sans-serif;
     line-height: 1.6;
-    background-color: #f4f4f4; /* Light gray background for the body */
-    color: #333; /* Dark text for readability */
+    background-color: #f4f4f4;
+    color: #333;
 }
 
 /* Header Navigation */
 header {
-    background: #4a4a4a; /* Darker background for contrast */
+    background: #4a4a4a;
     color: #fff;
     padding: 15px 0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
+header {
+    position: relative; /* or fixed, depending on your layout */
+    z-index: 1000; /* High z-index to stay on top of other elements */
+    background: #4a4a4a; /* Optional: make the background semi-transparent */
+}
+#map { 
+    height: calc(100vh - [header height]); /* Adjust to leave space for the header */
+    width: 100%; 
+    position: absolute; /* Optional: depends on your layout */
+    top: [header height]; /* Adjust to push the map down */
+}
+
 
 nav {
     display: flex;
@@ -30,12 +42,12 @@ nav {
 }
 
 .logo img {
-    width: 30px; /* Slightly larger logo */
-    transition: transform 0.3s; /* Animation on hover */
+    width: 30px;
+    transition: transform 0.3s;
 }
 
 .logo img:hover {
-    transform: scale(1.1); /* Logo grows on hover */
+    transform: scale(1.1);
 }
 
 .nav-links {
@@ -44,42 +56,39 @@ nav {
 }
 
 .nav-links li {
-    margin-left: 30px; /* More space between links */
+    margin-left: 30px;
 }
 
 .nav-links li a {
-    color: #fff; /* White text for links */
+    color: #fff;
     text-decoration: none;
     font-size: 18px;
-    padding: 5px 10px; /* Padding for clickable area */
-    border-radius: 5px; /* Rounded corners */
-    transition: background 0.3s, color 0.3s; /* Transition effects */
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background 0.3s;
 }
 
 .nav-links li a:hover {
-    background: #ff6f61; /* Highlight color */
-    color: #fff; /* Keep text color white */
+    background: #ff6f61;
 }
 
 /* Hero Section */
 .hero {
-    background: rgba(0, 0, 0, 0.7) url('images/hero-bg.jpg') no-repeat center center/cover; /* Dark overlay for contrast */
+    background: rgba(0, 0, 0, 0.7) url('images/hero-bg.jpg') no-repeat center center/cover;
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: #fff; /* Light text for contrast */
-    animation: fadeIn 1s; /* Fade-in animation */
+    color: #fff;
+    animation: fadeIn 1s;
 }
 
 .hero h1 {
-    font-size: 36px; /* Adjusted font size */
+    font-size: 36px;
     margin-bottom: 15px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Shadow for depth */
-    line-height: 1.2; /* Adjust line height for better spacing */
-    font-weight: 700; /* Bold weight for emphasis */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero p {
@@ -93,41 +102,21 @@ nav {
     background: #ff6f61;
     color: white;
     border: none;
-    border-radius: 5px; /* Rounded button */
+    border-radius: 5px;
     cursor: pointer;
     font-size: 18px;
-    text-decoration: none; /* Remove underline if it's an anchor tag */
-    transition: background 0.3s, transform 0.3s; /* Button animation */
+    text-decoration: none;
+    transition: background 0.3s, transform 0.3s;
 }
 
 .hero .btn:hover {
     background: #ff3f3f;
-    transform: scale(1.05); /* Slightly grow button on hover */
-}
-
-/* Heatmap Section */
-.heatmap {
-    padding: 50px 20px;
-    text-align: center;
-}
-
-.heatmap h2 {
-    font-size: 32px;
-    margin-bottom: 20px;
-}
-
-/* Heatmap Container */
-#heatmapContainer {
-    height: 600px; /* Ensure height is set */
-    width: 100%; /* Full width of the page */
-    margin: 20px 0;
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    transform: scale(1.05);
 }
 
 /* Footer */
 footer {
-    background: #4a4a4a; /* Match header */
+    background: #4a4a4a;
     color: white;
     padding: 15px 0;
     text-align: center;
@@ -136,15 +125,13 @@ footer {
 /* Media Queries for responsiveness */
 @media screen and (max-width: 768px) {
     .hero h1 {
-        font-size: 28px; /* Adjusted for smaller screens */
+        font-size: 28px;
     }
-
     .hero p {
         font-size: 18px;
     }
-
     .nav-links li {
-        margin-left: 15px; /* Adjust spacing for smaller screens */
+        margin-left: 15px;
     }
 }
 
