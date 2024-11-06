@@ -20,28 +20,28 @@
         }
 
         .popup-content { 
-            max-width: 220px; 
+            max-width: 250px; 
             word-wrap: break-word; 
-            font-size: 12px; 
+            font-size: 14px; 
         }
 
         canvas { 
             width: 100%; 
             height: auto; 
-            max-height: 150px; 
+            max-height: 250px; /* Increased height of the chart */
         }
 
         .popup { 
-            min-width: 220px; 
+            min-width: 250px; /* Increased minimum width */
         }
 
         @media (max-width: 768px) {
             .popup-content { 
-                font-size: 10px; 
+                font-size: 12px; 
             }
 
             .popup {
-                min-width: 180px;
+                min-width: 220px; /* Adjusted for smaller screens */
             }
         }
     </style>
@@ -78,7 +78,7 @@
 
             const fetchAQIData = async (lat, lon) => {
                 try {
-                    const response = await axios.get('https://api.openweathermap.org/data/2.5/air_pollution', {
+                    const response = await axios.get('http://api.openweathermap.org/data/2.5/air_pollution', {
                         params: { lat, lon, appid: apiKey }
                     });
                     return response.data;
@@ -197,7 +197,7 @@
                                 <h3 style="font-size: 14px;">${locationName}</h3>
                                 <p><strong>AQI Level:</strong> ${aqi}</p>
                                 <p><strong>Status:</strong> ${status}</p>
-                                <canvas id="chart-${locationName.replace(/\s/g, '')}" width="200" height="150"></canvas>
+                                <canvas id="chart-${locationName.replace(/\s/g, '')}" width="225" height="175"></canvas> <!-- Increased width and height -->
                             </div>
                         `, { closeButton: true }).openPopup();
 
