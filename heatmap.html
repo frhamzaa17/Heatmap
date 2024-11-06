@@ -78,7 +78,7 @@
 
             const fetchAQIData = async (lat, lon) => {
                 try {
-                    const response = await axios.get('http://api.openweathermap.org/data/2.5/air_pollution', {
+                    const response = await axios.get('https://api.openweathermap.org/data/2.5/air_pollution', {
                         params: { lat, lon, appid: apiKey }
                     });
                     return response.data;
