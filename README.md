@@ -3,6 +3,8 @@
 
 Welcome to the AQI Heatmap Project! This project visualizes real-time Air Quality Index (AQI) data across various locations on an interactive map, highlighting PM (Particulate Matter) concentrations with clear, engaging visuals and intuitive user interactions.
 
+LIVE LINK: https://frhamzaa17.github.io/Heatmap/
+
 ## 🌟 Project Overview
 
 Our AQI Heatmap offers a clear and interactive way to explore air quality data by clicking on locations on the map to view pollutant details. This project can be helpful for environmental researchers, students, developers, or anyone concerned about air quality and its impacts on health.
