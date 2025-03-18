@@ -20,7 +20,7 @@ header {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 header {
-    position: relative; /* or fixed, depending on your layout */
+    position: relative; /*  fixed, depending on your layout */
     z-index: 1000; /* High z-index to stay on top of other elements */
     background: #4a4a4a; /* Optional: make the background semi-transparent */
 }
