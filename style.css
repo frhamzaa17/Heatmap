@@ -1,4 +1,4 @@
-/* Global styles */
+
 * {
     margin: 0;
     padding: 0;
@@ -12,7 +12,7 @@ body {
     color: #333;
 }
 
-/* Header Navigation */
+/* Header*/
 header {
     background: #4a4a4a;
     color: #fff;
@@ -20,15 +20,15 @@ header {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 header {
-    position: relative; /*  fixed, depending on your layout */
-    z-index: 1000; /* High z-index to stay on top of other elements */
-    background: #4a4a4a; /* Optional: make the background semi-transparent */
+    position: relative; 
+    z-index: 1000; 
+    background: #4a4a4a; 
 }
 #map { 
-    height: calc(100vh - [header height]); /* Adjust to leave space for the header */
+    height: calc(100vh - [header height]); 
     width: 100%; 
-    position: absolute; /* Optional: depends on your layout */
-    top: [header height]; /* Adjust to push the map down */
+    position: absolute; 
+    top: [header height]; 
 }
 
 
@@ -72,7 +72,7 @@ nav {
     background: #ff6f61;
 }
 
-/* Hero Section */
+
 .hero {
     background: rgba(0, 0, 0, 0.7) url('images/hero-bg.jpg') no-repeat center center/cover;
     height: 100vh;
@@ -114,7 +114,6 @@ nav {
     transform: scale(1.05);
 }
 
-/* Footer */
 footer {
     background: #4a4a4a;
     color: white;
@@ -122,7 +121,6 @@ footer {
     text-align: center;
 }
 
-/* Media Queries for responsiveness */
 @media screen and (max-width: 768px) {
     .hero h1 {
         font-size: 28px;
@@ -135,7 +133,6 @@ footer {
     }
 }
 
-/* Animation Keyframes */
 @keyframes fadeIn {
     from {
         opacity: 0;
