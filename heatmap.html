@@ -29,11 +29,11 @@
         canvas { 
             width: 100%; 
             height: auto; 
-            max-height: 250px; /* Increased height of the chart */
+            max-height: 250px; /* Increased chart height*/
         }
 
         .popup { 
-            min-width: 250px; /* Increased minimum width */
+            min-width: 250px; /*minimum width */
         }
 
         @media (max-width: 768px) {
@@ -42,7 +42,7 @@
             }
 
             .popup {
-                min-width: 220px; /* Adjusted for smaller screen */
+                min-width: 220px; 
             }
         }
     </style>
@@ -122,7 +122,7 @@
             function renderPollutantsChart(data, canvasId) {
                 const ctx = document.getElementById(canvasId).getContext("2d");
 
-                // Destroy the previous chart if it exists
+                // remove previous chart
                 if (ctx.chart) {
                     ctx.chart.destroy();
                 }
@@ -187,7 +187,7 @@
                         const color = getAQIColor(aqi);
                         const status = getAQIStatus(aqi);
 
-                        // Create a circle marker for the clicked point
+                        // circle marker
                         currentMarker = L.circleMarker([lat, lon], {
                             color: color,
                             fillColor: color,
@@ -202,7 +202,7 @@
                             </div>
                         `, { closeButton: true }).openPopup();
 
-                        // Render pollutants chart immediately after popup opens
+                        // pollutants chart immediately
                         renderPollutantsChart(data, `chart-${locationName.replace(/\s/g, '')}`);
                     }
                 });
