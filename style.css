@@ -44,7 +44,7 @@ nav {
 .logo img {
     width: 30px;
     transition: transform 0.3s;
-    display: none;
+    display: none !important;
 }
 
 .logo img:hover {
