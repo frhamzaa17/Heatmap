@@ -1,219 +1,339 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive AQI Map</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive AQI Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    /* ========== BASE STYLES ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
 
-        #map { 
-            height: 100vh; 
-            width: 100%; 
-        }
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: linear-gradient(120deg, #0a2e45, #1a6f78, #2f9e8d);
+      color: #fff;
+    }
 
-        .popup-content { 
-            max-width: 250px; 
-            min-width: 200px;
-            word-wrap: break-word; 
-            font-size: 14px; 
-        }
+    /* ========== NAVBAR ========== */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(10, 46, 69, 0.75);
+      backdrop-filter: blur(10px);
+      padding: 1rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      animation: slideDown 1.2s ease-in-out;
+    }
 
-        canvas { 
-            width: 100%; 
-            height: auto; 
-            max-height: 250px; /* Increased chart height*/
-        }
+    nav ul {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
 
-        .popup { 
-            min-width: 250px; /*minimum width */
-        }
+    nav a {
+      color: #e5f9f5;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.3s;
+    }
 
-        @media (max-width: 768px) {
-            .popup-content { 
-                font-size: 12px; 
-            }
+    nav a:hover {
+      color: #00ffc6;
+    }
 
-            .popup {
-                min-width: 220px; 
-            }
-        }
-    </style>
+    .btn {
+      background: #00ffc6;
+      color: #002b36;
+      padding: 0.5rem 1.2rem;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .btn:hover {
+      background: #00bfa5;
+      transform: scale(1.05);
+    }
+
+    /* ========== MAP CONTAINER ========== */
+    #map {
+      height: 100vh;
+      width: 100%;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards;
+    }
+
+    /* ========== POPUP STYLING ========== */
+    .leaflet-popup-content-wrapper {
+      background: rgba(10, 46, 69, 0.9);
+      color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 255, 198, 0.3);
+      border: 1px solid rgba(0, 255, 198, 0.3);
+    }
+
+    .leaflet-popup-tip {
+      background: rgba(10, 46, 69, 0.9);
+    }
+
+    .popup-content {
+      max-width: 250px;
+      min-width: 200px;
+      word-wrap: break-word;
+      font-size: 14px;
+      text-align: center;
+      padding: 5px;
+    }
+
+    .popup-content h3 {
+      font-size: 15px;
+      margin-bottom: 5px;
+      color: #00ffc6;
+    }
+
+    .popup-content p {
+      margin: 4px 0;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      max-height: 250px;
+    }
+
+    /* ========== FOOTER ========== */
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.25);
+      text-align: center;
+      padding: 0.8rem;
+      font-size: 0.9rem;
+      color: #d6f5f0;
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+    }
+
+    /* ========== ANIMATIONS ========== */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* ========== VECTOR EFFECTS ========== */
+    .vector {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.15;
+      filter: blur(40px);
+      z-index: 0;
+      animation: float 15s ease-in-out infinite alternate;
+    }
+
+    .v1 {
+      width: 350px;
+      height: 350px;
+      background: #00ffc6;
+      top: 10%;
+      left: 5%;
+      animation-duration: 18s;
+    }
+
+    .v2 {
+      width: 450px;
+      height: 450px;
+      background: #00b3ff;
+      bottom: 15%;
+      right: 8%;
+      animation-duration: 22s;
+    }
+
+    .v3 {
+      width: 300px;
+      height: 300px;
+      background: #ffffff;
+      top: 50%;
+      left: 70%;
+      animation-duration: 25s;
+    }
+
+    @keyframes float {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(40px, -40px) scale(1.1); }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <img src="images/logo.png" alt="Logo">
-            </div>
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="heatmap.html" class="btn">Heatmap</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="heatmap.html" class="btn">Heatmap</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <div id="map"></div>
+  <!-- Animated background design elements -->
+  <div class="vector v1"></div>
+  <div class="vector v2"></div>
+  <div class="vector v3"></div>
 
-    <footer>
-        <p>&copy; 2024 Heatmap. All rights reserved.</p>
-    </footer>
+  <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const map = L.map('map').setView([20.5937, 78.9629], 5);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+  <footer>
+    <p>© 2024 Interactive AQI Map by Hamza. All Rights Reserved.</p>
+  </footer>
 
-            const apiKey = 'e48ec5f8c70c0e7bfdd7bd5d3cafa210';
-            let currentMarker = null;
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const map = L.map("map").setView([20.5937, 78.9629], 5);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 }).addTo(map);
 
-            const fetchAQIData = async (lat, lon) => {
-                try {
-                    const response = await axios.get('https://api.openweathermap.org/data/2.5/air_pollution', {
-                        params: { lat, lon, appid: apiKey }
-                    });
-                    return response.data;
-                } catch (error) {
-                    console.error("Error fetching AQI data:", error);
-                    return null;
-                }
-            };
+      const apiKey = "e48ec5f8c70c0e7bfdd7bd5d3cafa210";
+      let currentMarker = null;
 
-            const fetchLocationName = async (lat, lon) => {
-                try {
-                    const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
-                        params: { lat, lon, format: 'json' }
-                    });
-                    return response.data.display_name;
-                } catch (error) {
-                    console.error("Error fetching location name:", error);
-                    return null;
-                }
-            };
+      const fetchAQIData = async (lat, lon) => {
+        try {
+          const response = await axios.get("https://api.openweathermap.org/data/2.5/air_pollution", {
+            params: { lat, lon, appid: apiKey },
+          });
+          return response.data;
+        } catch (error) {
+          console.error("Error fetching AQI data:", error);
+          return null;
+        }
+      };
 
-            function getAQIColor(aqi) {
-                if (aqi === 1) return "#006400"; // Very Good
-                if (aqi === 2) return "#00FF00"; // Good
-                if (aqi === 3) return "#FFFF00"; // Moderate
-                if (aqi === 4) return "#FFB6C1"; // Poor
-                if (aqi === 5) return "#FF0000"; // Very Poor
-                return "#800080"; // Hazardous
-            }
+      const fetchLocationName = async (lat, lon) => {
+        try {
+          const response = await axios.get("https://nominatim.openstreetmap.org/reverse", {
+            params: { lat, lon, format: "json" },
+          });
+          return response.data.display_name;
+        } catch (error) {
+          console.error("Error fetching location name:", error);
+          return "Unknown Location";
+        }
+      };
 
-            function getAQIStatus(aqi) {
-                if (aqi === 1) return "Very Good";
-                if (aqi === 2) return "Good";
-                if (aqi === 3) return "Moderate";
-                if (aqi === 4) return "Poor";
-                if (aqi === 5) return "Very Poor";
-                return "Hazardous";
-            }
+      function getAQIColor(aqi) {
+        const colors = ["#006400", "#00FF00", "#FFFF00", "#FFB6C1", "#FF0000", "#800080"];
+        return colors[aqi - 1] || colors[5];
+      }
 
-            function renderPollutantsChart(data, canvasId) {
-                const ctx = document.getElementById(canvasId).getContext("2d");
+      function getAQIStatus(aqi) {
+        const status = ["Very Good", "Good", "Moderate", "Poor", "Very Poor", "Hazardous"];
+        return status[aqi - 1] || status[5];
+      }
 
-                // remove previous chart
-                if (ctx.chart) {
-                    ctx.chart.destroy();
-                }
-
-                ctx.chart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['PM2.5', 'PM10', 'CO', 'SO2', 'O3'],
-                        datasets: [{
-                            label: 'Pollutant Levels (μg/m³)',
-                            data: [
-                                data.list[0].components.pm2_5,
-                                data.list[0].components.pm10,
-                                data.list[0].components.co,
-                                data.list[0].components.so2,
-                                data.list[0].components.o3
-                            ],
-                            backgroundColor: ['#ff4e42', '#ffa700', '#66b032', '#065535', '#0072bb']
-                        }]
-                    },
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) { return value + ' μg/m³'; }
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    autoSkip: false,
-                                    maxRotation: 45,
-                                    minRotation: 45
-                                }
-                            }
-                        },
-                        layout: {
-                            padding: {
-                                bottom: 20
-                            }
-                        }
-                    }
-                });
-            }
-
-            function clearPreviousData() {
-                if (currentMarker) {
-                    map.removeLayer(currentMarker);
-                    currentMarker = null;
-                }
-            }
-
-            function displayAQIData(lat, lon) {
-                clearPreviousData();
-
-                fetchAQIData(lat, lon).then(async (data) => {
-                    if (data) {
-                        const aqi = data.list[0].main.aqi;
-                        const locationName = await fetchLocationName(lat, lon);
-                        const color = getAQIColor(aqi);
-                        const status = getAQIStatus(aqi);
-
-                        // circle marker
-                        currentMarker = L.circleMarker([lat, lon], {
-                            color: color,
-                            fillColor: color,
-                            fillOpacity: 0.6,
-                            radius: 10
-                        }).addTo(map).bindPopup(`
-                            <div class="popup-content">
-                                <h3 style="font-size: 14px;">${locationName}</h3>
-                                <p><strong>AQI Level:</strong> ${aqi}</p>
-                                <p><strong>Status:</strong> ${status}</p>
-                                <canvas id="chart-${locationName.replace(/\s/g, '')}" width="225" height="175"></canvas> <!-- Increased width and height -->
-                            </div>
-                        `, { closeButton: true }).openPopup();
-
-                        // pollutants chart immediately
-                        renderPollutantsChart(data, `chart-${locationName.replace(/\s/g, '')}`);
-                    }
-                });
-            }
-
-            map.on('click', function (event) {
-                const lat = event.latlng.lat;
-                const lon = event.latlng.lng;
-                displayAQIData(lat, lon);
-            });
+      function renderPollutantsChart(data, canvasId) {
+        const ctx = document.getElementById(canvasId).getContext("2d");
+        if (ctx.chart) ctx.chart.destroy();
+        ctx.chart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["PM2.5", "PM10", "CO", "SO2", "O3"],
+            datasets: [{
+              label: "Pollutant Levels (μg/m³)",
+              data: [
+                data.list[0].components.pm2_5,
+                data.list[0].components.pm10,
+                data.list[0].components.co,
+                data.list[0].components.so2,
+                data.list[0].components.o3,
+              ],
+              backgroundColor: ["#ff4e42", "#ffa700", "#66b032", "#065535", "#0072bb"],
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: (value) => value + " μg/m³",
+                  color: "#e5f9f5",
+                },
+                grid: { color: "rgba(255,255,255,0.1)" },
+              },
+              x: {
+                ticks: { color: "#e5f9f5", maxRotation: 45, minRotation: 45 },
+                grid: { color: "rgba(255,255,255,0.05)" },
+              },
+            },
+            plugins: {
+              legend: {
+                labels: { color: "#00ffc6" },
+              },
+            },
+          },
         });
-    </script>
+      }
+
+      function clearPreviousData() {
+        if (currentMarker) {
+          map.removeLayer(currentMarker);
+          currentMarker = null;
+        }
+      }
+
+      async function displayAQIData(lat, lon) {
+        clearPreviousData();
+        const data = await fetchAQIData(lat, lon);
+        if (!data) return;
+
+        const aqi = data.list[0].main.aqi;
+        const locationName = await fetchLocationName(lat, lon);
+        const color = getAQIColor(aqi);
+        const status = getAQIStatus(aqi);
+
+        currentMarker = L.circleMarker([lat, lon], {
+          color: color,
+          fillColor: color,
+          fillOpacity: 0.7,
+          radius: 10,
+        }).addTo(map)
+          .bindPopup(`
+            <div class="popup-content">
+              <h3>${locationName}</h3>
+              <p><strong>AQI Level:</strong> ${aqi}</p>
+              <p><strong>Status:</strong> ${status}</p>
+              <canvas id="chart-${locationName.replace(/\s/g, '')}" width="225" height="175"></canvas>
+            </div>
+          `)
+          .openPopup();
+
+        renderPollutantsChart(data, `chart-${locationName.replace(/\s/g, '')}`);
+      }
+
+      map.on("click", (event) => {
+        const { lat, lng } = event.latlng;
+        displayAQIData(lat, lng);
+      });
+    });
+  </script>
 </body>
 </html>
