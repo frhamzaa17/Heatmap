@@ -1,34 +1,318 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive AQI Map</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive AQI Map</title>
+
+  <style>
+    /* === Global Styles === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* === Decorative Vector Background === */
+    .vector-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .wave {
+      position: absolute;
+      bottom: 0;
+      width: 200%;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 100%;
+      animation: wave 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes wave {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      animation: float 10s ease-in-out infinite;
+    }
+
+    .circle:nth-child(1) {
+      width: 120px;
+      height: 120px;
+      top: 15%;
+      left: 10%;
+      animation-delay: 1s;
+    }
+
+    .circle:nth-child(2) {
+      width: 200px;
+      height: 200px;
+      top: 25%;
+      right: 8%;
+      animation-delay: 3s;
+    }
+
+    .circle:nth-child(3) {
+      width: 80px;
+      height: 80px;
+      bottom: 15%;
+      left: 20%;
+      animation-delay: 2s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    /* === Header / Navbar === */
+    header {
+      width: 100%;
+      padding: 20px 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    nav {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .site-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+      transition: color 0.3s ease;
+    }
+
+    .site-title:hover {
+      color: #00c6ff;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #e0e0e0;
+      font-weight: 500;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #00c6ff;
+    }
+
+    .nav-links .btn {
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      padding: 8px 16px;
+      border-radius: 25px;
+      color: #fff;
+      transition: 0.3s ease;
+    }
+
+    .nav-links .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 12px rgba(0, 198, 255, 0.6);
+    }
+
+    /* === Hero Section === */
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero-content {
+      max-width: 700px;
+      animation: slideUp 1.2s ease forwards;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      margin-bottom: 20px;
+      color: #fff;
+      line-height: 1.3;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: #dcdcdc;
+      margin-bottom: 35px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      padding: 12px 28px;
+      border-radius: 30px;
+      font-weight: 600;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 18px rgba(0, 198, 255, 0.6);
+    }
+
+    /* === Footer === */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      font-size: 0.9rem;
+      color: #bbb;
+    }
+
+    /* === Animations === */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease both;
+    }
+
+    @keyframes slideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* === Responsive === */
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 30px;
+      }
+
+      .nav-links {
+        gap: 15px;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <img src="images/logo.png" alt="Logo">
-            </div>
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="heatmap.html" class="btn">Heatmap</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header class="fade-in">
+    <nav>
+      <div class="site-title">Interactive AQI Map</div>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="heatmap.html" class="btn">Heatmap</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <section class="hero">
-        <h1>Interactive AQI Map</h1>
-        <p>Explore World's AQI data visually</p>
-        <a href="heatmap.html" class="btn">Show Map</a>
-    </section>
+  <!-- Animated vector background -->
+  <div class="vector-bg">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="wave"></div>
+  </div>
 
-    <footer>
-        <p>Copyright © 2024 Hamza. All Rights Reserved.</p>
-    </footer>
+  <section class="hero fade-in">
+    <div class="hero-content">
+      <h1>Visualize Global Air Quality Instantly</h1>
+      <p>Explore real-time AQI data for cities around the world with interactive heatmaps and insights.</p>
+      <a href="heatmap.html" class="btn-primary">Show Map</a>
+    </div>
+  </section>
 
-    <script src="script.js"></script>
+  <footer class="fade-in">
+    <p>© 2024 Hamza — Interactive AQI Project. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    // Navbar background effect on scroll
+    document.addEventListener("scroll", () => {
+      const header = document.querySelector("header");
+      if (window.scrollY > 50) {
+        header.style.background = "rgba(15, 32, 39, 0.9)";
+      } else {
+        header.style.background = "rgba(255, 255, 255, 0.05)";
+      }
+    });
+
+    // Fade-in on scroll
+    const faders = document.querySelectorAll(".fade-in");
+    const appearOptions = { threshold: 0.3 };
+
+    const appearOnScroll = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("appear");
+        observer.unobserve(entry.target);
+      });
+    }, appearOptions);
+
+    faders.forEach((fader) => appearOnScroll.observe(fader));
+  </script>
 </body>
 </html>
