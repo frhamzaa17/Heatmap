@@ -17,9 +17,11 @@
     html, body {
       height: 100%;
       width: 100%;
-      overflow: hidden;
       background: linear-gradient(120deg, #0a2e45, #1a6f78, #2f9e8d);
       color: #fff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     /* ========== NAVBAR ========== */
@@ -68,10 +70,92 @@
       transform: scale(1.05);
     }
 
+    /* ========== SEARCH BOX ========== */
+    .search-box {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 400px;
+      z-index: 2000;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 15px;
+      border-radius: 25px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      color: #0a2e45;
+      background: #e5f9f5;
+      box-shadow: 0 0 10px rgba(0, 255, 198, 0.3);
+    }
+
+    #suggestions {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      width: 100%;
+      background: rgba(229, 249, 245, 0.95);
+      border-radius: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      display: none;
+      backdrop-filter: blur(6px);
+    }
+
+    .suggestion-item {
+      padding: 10px 15px;
+      cursor: pointer;
+      color: #0a2e45;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    .suggestion-item:hover {
+      background: rgba(0, 255, 198, 0.3);
+    }
+
+    /* 📱 RESPONSIVE SEARCH BOX ONLY */
+    @media (max-width: 1024px) {
+      .search-box {
+        width: 85%;
+        max-width: 350px;
+        top: 75px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .search-box {
+        width: 90%;
+        top: 70px;
+      }
+      .search-box input {
+        font-size: 0.95rem;
+        padding: 9px 13px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .search-box {
+        width: 92%;
+        top: 65px;
+      }
+      .search-box input {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+      }
+    }
+
     /* ========== MAP CONTAINER ========== */
     #map {
-      height: 100vh;
+      flex-grow: 1;
       width: 100%;
+      margin-top: 70px; /* ensure below navbar */
+      margin-bottom: 40px; /* avoid overlap with footer */
       opacity: 0;
       animation: fadeIn 1.5s ease forwards;
     }
@@ -192,10 +276,12 @@
     </nav>
   </header>
 
-  <!-- Animated background design elements -->
-  <div class="vector v1"></div>
-  <div class="vector v2"></div>
-  <div class="vector v3"></div>
+
+  <!-- Search box -->
+  <div class="search-box">
+    <input type="text" id="locationInput" placeholder="Search for a location..." autocomplete="off" />
+    <div id="suggestions"></div>
+  </div>
 
   <div id="map"></div>
 
@@ -273,22 +359,15 @@
             scales: {
               y: {
                 beginAtZero: true,
-                ticks: {
-                  callback: (value) => value + " μg/m³",
-                  color: "#e5f9f5",
-                },
+                ticks: { callback: (value) => value + " μg/m³", color: "#e5f9f5" },
                 grid: { color: "rgba(255,255,255,0.1)" },
               },
               x: {
-                ticks: { color: "#e5f9f5", maxRotation: 45, minRotation: 45 },
+                ticks: { color: "#e5f9f5" },
                 grid: { color: "rgba(255,255,255,0.05)" },
               },
             },
-            plugins: {
-              legend: {
-                labels: { color: "#00ffc6" },
-              },
-            },
+            plugins: { legend: { labels: { color: "#00ffc6" } } },
           },
         });
       }
@@ -332,6 +411,47 @@
       map.on("click", (event) => {
         const { lat, lng } = event.latlng;
         displayAQIData(lat, lng);
+      });
+
+      // ✅ Search + Suggestions functionality
+      const locationInput = document.getElementById("locationInput");
+      const suggestionsBox = document.getElementById("suggestions");
+
+      locationInput.addEventListener("input", async () => {
+        const query = locationInput.value.trim();
+        if (query.length < 2) {
+          suggestionsBox.style.display = "none";
+          return;
+        }
+
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5`);
+        const data = await response.json();
+
+        suggestionsBox.innerHTML = "";
+        if (data.length === 0) {
+          suggestionsBox.style.display = "none";
+          return;
+        }
+
+        data.forEach(item => {
+          const div = document.createElement("div");
+          div.classList.add("suggestion-item");
+          div.textContent = item.display_name;
+          div.addEventListener("click", () => {
+            locationInput.value = item.display_name;
+            map.setView([item.lat, item.lon], 10);
+            displayAQIData(item.lat, item.lon);
+            suggestionsBox.style.display = "none";
+          });
+          suggestionsBox.appendChild(div);
+        });
+        suggestionsBox.style.display = "block";
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".search-box")) {
+          suggestionsBox.style.display = "none";
+        }
       });
     });
   </script>
